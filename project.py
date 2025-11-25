@@ -9,6 +9,7 @@
 # - Show selected list
 # - Show algorithm menu (1/2/3/b/exit)
 # - Linear Search (option 1) with step-by-step output
+# - Binary Search (option 2) with step-by-step output (on sorted list)
 #-------------------------------------------------
 
 import json
@@ -161,6 +162,49 @@ def linear_search(arr, target):
 
 
 
+def binary_search(arr, target):
+    """Perform binary search with step-by-step explanation on a sorted copy."""
+    print("\n--------- BINARY SEARCH ---------")
+    if len(arr) == 0:
+        print("List is empty. Nothing to search.")
+        return
+
+    # Binary search requires a sorted list → use a sorted copy
+    sorted_arr = sorted(arr)
+    print("Note: Binary Search works on a sorted list.")
+    print("Sorted list used:")
+    print_list_plain(sorted_arr)
+
+    low, high = 0, len(sorted_arr) - 1
+    steps = 0
+
+    while low <= high:
+        steps += 1
+        mid = (low + high) // 2
+        value = sorted_arr[mid]
+
+        print(
+            f"Step {steps} : low = {low} , high = {high} , mid = {mid} , "
+            f"element = {value} , target = {target}"
+        )
+
+        if value == target:
+            print("=> Match found")
+            print(f"=> Element {target} found at index {mid} (in sorted list)")
+            print("Total steps taken (Binary Search):", steps)
+            return
+        elif value < target:
+            print("=> element < target , searching RIGHT half (low = mid + 1)\n")
+            low = mid + 1
+        else:
+            print("=> element > target , searching LEFT half (high = mid - 1)\n")
+            high = mid - 1
+
+    print("=> Element not found")
+    print("Total steps taken (Binary Search):", steps)
+
+
+
 def show_algo_menu():
     """Display the algorithm selection menu."""
     
@@ -168,7 +212,7 @@ def show_algo_menu():
     print(" Choose algorithm:")
     print(" 1 - Linear Search")
     print(" 2 - Binary Search (on sorted list)")
-    print(" 3 - Compare Linear vs Binary")
+    print(" 3 - Compare Linear vs Binary (coming soon)")
     print(" b - Back to choose Q-key")
     print(" exit - Quit program")
     print("--------------------------------------")
@@ -247,9 +291,15 @@ def main():
                 linear_search(arr, target)
                 input("Press Enter to continue...")
 
-            elif algo in ("2", "3"):
-                # Placeholders for now
-                print("\n[INFO] Search algorithms will be added in next step...")
+            elif algo == "2":
+                # Binary search: ask for target, then run search
+                target = take_target_input()
+                binary_search(arr, target)
+                input("Press Enter to continue...")
+
+            elif algo == "3":
+                # Placeholder for future compare feature
+                print("\n[INFO] Later....")
                 input("Press Enter to go back...")
 
             else:
