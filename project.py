@@ -2,7 +2,7 @@
 # Search Algorithms Explainer - Python (CLI) 
 #---------------------------------------------------------------------
 
-# Features for now:
+# Features:
 # - Load questions from JSON
 # - Show keys menu
 # - Choose Q1/Q2 or manual or inline numbers
@@ -11,10 +11,14 @@
 # - Linear Search (option 1) with step-by-step output
 # - Binary Search (option 2) with step-by-step output (on sorted list)
 # - Compare Linear vs Binary (option 3)
+# - Log results to results.json (question, method, time/space complexity, steps)
 #----------------------------------------------------------------------
 
 import json
 import os
+
+# NEW: Result file name for logging
+RESULTS_FILE = "results.json"   # NEW
 
 
 def load_questions(filename):
@@ -90,7 +94,52 @@ def print_list_plain(arr):
 
 
 # ---------------------------
-#   EXTRA FUNCTIONS ADDED
+#   RESULT LOGGING  (NEW)
+# ---------------------------
+
+def save_result(question, method, steps, time_complexity, space_complexity):
+    """
+    Save one result entry into results.json as a list of records.
+    Each record contains:
+    - question
+    - method
+    - time_complexity
+    - space_complexity
+    - steps
+    """
+    entry = {
+        "question": question,                 # e.g. "Q1", "manual", "inline: 1 2 3"
+        "method": method,                     # "Linear Search" / "Binary Search"
+        "time_complexity": time_complexity,   # e.g. "O(n)"
+        "space_complexity": space_complexity, # e.g. "O(1)"
+        "steps": steps
+    }
+
+    # Load existing data (if any)
+    data = []
+    if os.path.exists(RESULTS_FILE):
+        try:
+            with open(RESULTS_FILE, "r", encoding="utf-8") as f:
+                old = json.load(f)
+                if isinstance(old, list):
+                    data = old
+        except Exception:
+            # If file corrupt or not a list, start fresh
+            data = []
+
+    data.append(entry)
+
+    # Save back to file
+    try:
+        with open(RESULTS_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+    except Exception:
+        print("Warning: Could not write to results.json")
+
+
+
+# ---------------------------
+#   EXTRA FUNCTIONS
 # ---------------------------
 
 def take_list_input():
@@ -148,7 +197,6 @@ def linear_search(arr, target):
     for i in range(len(arr)):
         value = arr[i]
         steps += 1
-        # Same style as you showed: spaces around = and commas
         print(f"Step {steps} : index = {i} , element = {value} , target = {target}")
 
         if value == target:
@@ -159,7 +207,6 @@ def linear_search(arr, target):
         else:
             print("=> Not equal, moving next\n")
 
-    # If not found
     print("=> Element not found")
     print("Total steps taken (Linear Search):", steps)
     return -1, steps
@@ -256,18 +303,20 @@ def main():
         # -----------------------------------
         # Handle manual / inline / Q1, Q2 etc
         # -----------------------------------
-        
         if low == "manual":                            # User types "manual"
             arr = take_list_input()                    # Ask for list manually
+            question_label = "manual"                  # NEW
 
         else:
             parsed = convert_num(raw_choice)           # Try inline numbers
 
             if parsed is not None:                     # Inline numbers detected
                 arr = parsed
+                question_label = "inline: " + raw_choice   # NEW
 
             elif raw_choice in questions:              # Q1, Q2, ...
                 arr = questions[raw_choice]
+                question_label = raw_choice            # NEW
 
             else:                                      # Neither Q1 nor numbers
                 print("\n❌ Invalid key or input:", raw_choice)
@@ -295,17 +344,37 @@ def main():
             elif algo == "1":
                 # Linear search: ask for target, then run search
                 target = take_target_input()
-                linear_search(arr, target)
+                _, steps = linear_search(arr, target)
+
+                # NEW: Log result for Linear Search
+                save_result(
+                    question=question_label,
+                    method="Linear Search",
+                    time_complexity="O(n)",
+                    space_complexity="O(1)",
+                    steps=steps
+                )
+
                 input("Press Enter to continue...")
 
             elif algo == "2":
                 # Binary search: ask for target, then run search
                 target = take_target_input()
-                binary_search(arr, target)
+                _, steps = binary_search(arr, target)
+
+                # NEW: Log result for Binary Search
+                save_result(
+                    question=question_label,
+                    method="Binary Search",
+                    time_complexity="O(log n)",
+                    space_complexity="O(1)",
+                    steps=steps
+                )
+
                 input("Press Enter to continue...")
 
             elif algo == "3":
-                # NEW: Compare Linear vs Binary
+                # Compare Linear vs Binary
                 target = take_target_input()
                 print("\n===== Comparing Linear Search vs Binary Search =====")
                 print("Same list and same target will be used for both.\n")
@@ -313,18 +382,36 @@ def main():
                 print("[1] Running Linear Search...\n")
                 index_lin, steps_lin = linear_search(arr, target)
 
+                # NEW: Log Linear Search (Compare Mode)
+                save_result(
+                    question=question_label,
+                    method="Linear Search (Compare Mode)",
+                    time_complexity="O(n)",
+                    space_complexity="O(1)",
+                    steps=steps_lin
+                )
+
                 print("\n[2] Running Binary Search...\n")
                 index_bin, steps_bin = binary_search(arr, target)
+
+                # NEW: Log Binary Search (Compare Mode)
+                save_result(
+                    question=question_label,
+                    method="Binary Search (Compare Mode)",
+                    time_complexity="O(log n)",
+                    space_complexity="O(1)",
+                    steps=steps_bin
+                )
 
                 print("\n----------- SUMMARY -----------")
                 # Found / not found comparison
                 if index_lin != -1:
-                    print(f"Linear Search  : Found at index {index_lin} (original list index)")
+                    print(f"Linear Search  : Found (index {index_lin} in original list)")
                 else:
                     print("Linear Search  : Not found")
 
                 if index_bin != -1:
-                    print(f"Binary Search  : Found at index {index_bin} (in sorted list)")
+                    print(f"Binary Search  : Found (index {index_bin} in sorted list)")
                 else:
                     print("Binary Search  : Not found")
 
