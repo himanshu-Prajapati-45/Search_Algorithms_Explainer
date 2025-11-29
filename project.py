@@ -1,6 +1,6 @@
-#-------------------------------------------------
+#--------------------------------------------------------------------
 # Search Algorithms Explainer - Python (CLI) 
-#-------------------------------------------------
+#---------------------------------------------------------------------
 
 # Features for now:
 # - Load questions from JSON
@@ -10,7 +10,8 @@
 # - Show algorithm menu (1/2/3/b/exit)
 # - Linear Search (option 1) with step-by-step output
 # - Binary Search (option 2) with step-by-step output (on sorted list)
-#-------------------------------------------------
+# - Compare Linear vs Binary (option 3)
+#----------------------------------------------------------------------
 
 import json
 import os
@@ -138,7 +139,9 @@ def take_target_input():
 
 
 def linear_search(arr, target):
-    """Perform linear search with step-by-step explanation."""
+    """Perform linear search with step-by-step explanation.
+       Returns: (index_found_or_-1, steps_taken)
+    """
     print("\n--------- LINEAR SEARCH ---------")
     steps = 0
 
@@ -152,22 +155,25 @@ def linear_search(arr, target):
             print("=> Match found")
             print(f"=> Element {target} found at index {i}")
             print("Total steps taken (Linear Search):", steps)
-            return
+            return i, steps
         else:
             print("=> Not equal, moving next\n")
 
     # If not found
     print("=> Element not found")
     print("Total steps taken (Linear Search):", steps)
+    return -1, steps
 
 
 
 def binary_search(arr, target):
-    """Perform binary search with step-by-step explanation on a sorted copy."""
+    """Perform binary search with step-by-step explanation on a sorted copy.
+       Returns: (index_found_or_-1_in_sorted_array, steps_taken)
+    """
     print("\n--------- BINARY SEARCH ---------")
     if len(arr) == 0:
         print("List is empty. Nothing to search.")
-        return
+        return -1, 0
 
     # Binary search requires a sorted list → use a sorted copy
     sorted_arr = sorted(arr)
@@ -192,7 +198,7 @@ def binary_search(arr, target):
             print("=> Match found")
             print(f"=> Element {target} found at index {mid} (in sorted list)")
             print("Total steps taken (Binary Search):", steps)
-            return
+            return mid, steps
         elif value < target:
             print("=> element < target , searching RIGHT half (low = mid + 1)\n")
             low = mid + 1
@@ -202,6 +208,7 @@ def binary_search(arr, target):
 
     print("=> Element not found")
     print("Total steps taken (Binary Search):", steps)
+    return -1, steps
 
 
 
@@ -212,7 +219,7 @@ def show_algo_menu():
     print(" Choose algorithm:")
     print(" 1 - Linear Search")
     print(" 2 - Binary Search (on sorted list)")
-    print(" 3 - Compare Linear vs Binary (coming soon)")
+    print(" 3 - Compare Linear vs Binary")
     print(" b - Back to choose Q-key")
     print(" exit - Quit program")
     print("--------------------------------------")
@@ -298,8 +305,37 @@ def main():
                 input("Press Enter to continue...")
 
             elif algo == "3":
-                # Placeholder for future compare feature
-                print("\n[INFO] Later....")
+                # NEW: Compare Linear vs Binary
+                target = take_target_input()
+                print("\n===== Comparing Linear Search vs Binary Search =====")
+                print("Same list and same target will be used for both.\n")
+
+                print("[1] Running Linear Search...\n")
+                index_lin, steps_lin = linear_search(arr, target)
+
+                print("\n[2] Running Binary Search...\n")
+                index_bin, steps_bin = binary_search(arr, target)
+
+                print("\n----------- SUMMARY -----------")
+                # Found / not found comparison
+                if index_lin != -1:
+                    print(f"Linear Search  : Found at index {index_lin} (original list index)")
+                else:
+                    print("Linear Search  : Not found")
+
+                if index_bin != -1:
+                    print(f"Binary Search  : Found at index {index_bin} (in sorted list)")
+                else:
+                    print("Binary Search  : Not found")
+
+                print("\nSteps taken:")
+                print(f"  Linear Search  -> {steps_lin} steps")
+                print(f"  Binary Search  -> {steps_bin} steps")
+
+                print("\nTime Complexity:")
+                print("  Linear Search  -> O(n)")
+                print("  Binary Search  -> O(log n)  (requires sorted list)")
+                print("-------------------------------")
                 input("Press Enter to go back...")
 
             else:
