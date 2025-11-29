@@ -11,14 +11,14 @@
 # - Linear Search (option 1) with step-by-step output
 # - Binary Search (option 2) with step-by-step output (on sorted list)
 # - Compare Linear vs Binary (option 3)
-# - Log results to results.json (question, method, time/space complexity, steps)
+# - Log results to results.json (question, method, time/space complexity, steps, found/not found)
 #----------------------------------------------------------------------
 
 import json
 import os
 
-# NEW: Result file name for logging
-RESULTS_FILE = "results.json"   # NEW
+# Result file name for logging
+RESULTS_FILE = "results.json"
 
 
 def load_questions(filename):
@@ -94,10 +94,10 @@ def print_list_plain(arr):
 
 
 # ---------------------------
-#   RESULT LOGGING  (NEW)
+#   RESULT LOGGING
 # ---------------------------
 
-def save_result(question, method, steps, time_complexity, space_complexity):
+def save_result(question, method, steps, time_complexity, space_complexity, found):
     """
     Save one result entry into results.json as a list of records.
     Each record contains:
@@ -106,13 +106,15 @@ def save_result(question, method, steps, time_complexity, space_complexity):
     - time_complexity
     - space_complexity
     - steps
+    - found (Found / Not Found)
     """
     entry = {
         "question": question,                 # e.g. "Q1", "manual", "inline: 1 2 3"
         "method": method,                     # "Linear Search" / "Binary Search"
         "time_complexity": time_complexity,   # e.g. "O(n)"
         "space_complexity": space_complexity, # e.g. "O(1)"
-        "steps": steps
+        "steps": steps,
+        "found": "Found" if found else "Not Found"
     }
 
     # Load existing data (if any)
@@ -305,18 +307,18 @@ def main():
         # -----------------------------------
         if low == "manual":                            # User types "manual"
             arr = take_list_input()                    # Ask for list manually
-            question_label = "manual"                  # NEW
+            question_label = "manual"
 
         else:
             parsed = convert_num(raw_choice)           # Try inline numbers
 
             if parsed is not None:                     # Inline numbers detected
                 arr = parsed
-                question_label = "inline: " + raw_choice   # NEW
+                question_label = "inline: " + raw_choice
 
             elif raw_choice in questions:              # Q1, Q2, ...
                 arr = questions[raw_choice]
-                question_label = raw_choice            # NEW
+                question_label = raw_choice
 
             else:                                      # Neither Q1 nor numbers
                 print("\n❌ Invalid key or input:", raw_choice)
@@ -344,15 +346,17 @@ def main():
             elif algo == "1":
                 # Linear search: ask for target, then run search
                 target = take_target_input()
-                _, steps = linear_search(arr, target)
+                index, steps = linear_search(arr, target)
+                found = index != -1
 
-                # NEW: Log result for Linear Search
+                # Log result for Linear Search
                 save_result(
                     question=question_label,
                     method="Linear Search",
                     time_complexity="O(n)",
                     space_complexity="O(1)",
-                    steps=steps
+                    steps=steps,
+                    found=found
                 )
 
                 input("Press Enter to continue...")
@@ -360,15 +364,17 @@ def main():
             elif algo == "2":
                 # Binary search: ask for target, then run search
                 target = take_target_input()
-                _, steps = binary_search(arr, target)
+                index, steps = binary_search(arr, target)
+                found = index != -1
 
-                # NEW: Log result for Binary Search
+                # Log result for Binary Search
                 save_result(
                     question=question_label,
                     method="Binary Search",
                     time_complexity="O(log n)",
                     space_complexity="O(1)",
-                    steps=steps
+                    steps=steps,
+                    found=found
                 )
 
                 input("Press Enter to continue...")
@@ -381,36 +387,40 @@ def main():
 
                 print("[1] Running Linear Search...\n")
                 index_lin, steps_lin = linear_search(arr, target)
+                found_lin = index_lin != -1
 
-                # NEW: Log Linear Search (Compare Mode)
+                # Log Linear Search (Compare Mode)
                 save_result(
                     question=question_label,
                     method="Linear Search (Compare Mode)",
                     time_complexity="O(n)",
                     space_complexity="O(1)",
-                    steps=steps_lin
+                    steps=steps_lin,
+                    found=found_lin
                 )
 
                 print("\n[2] Running Binary Search...\n")
                 index_bin, steps_bin = binary_search(arr, target)
+                found_bin = index_bin != -1
 
-                # NEW: Log Binary Search (Compare Mode)
+                # Log Binary Search (Compare Mode)
                 save_result(
                     question=question_label,
                     method="Binary Search (Compare Mode)",
                     time_complexity="O(log n)",
                     space_complexity="O(1)",
-                    steps=steps_bin
+                    steps=steps_bin,
+                    found=found_bin
                 )
 
                 print("\n----------- SUMMARY -----------")
                 # Found / not found comparison
-                if index_lin != -1:
+                if found_lin:
                     print(f"Linear Search  : Found (index {index_lin} in original list)")
                 else:
                     print("Linear Search  : Not found")
 
-                if index_bin != -1:
+                if found_bin:
                     print(f"Binary Search  : Found (index {index_bin} in sorted list)")
                 else:
                     print("Binary Search  : Not found")
