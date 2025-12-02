@@ -2,21 +2,10 @@
 # Search Algorithms Explainer - Python (CLI) 
 #---------------------------------------------------------------------
 
-# Features:
-# - Load questions from JSON
-# - Show keys menu
-# - Choose Q1/Q2 or manual or inline numbers
-# - Show selected list
-# - Show algorithm menu (1/2/3/b/exit)
-# - Linear Search (option 1) with step-by-step output
-# - Binary Search (option 2) with step-by-step output (on sorted list)
-# - Compare Linear vs Binary (option 3)
-# - Log results to results.json (question, method, time/space complexity, steps, found/not found)
-#----------------------------------------------------------------------
 
 import json
 import os
-import argparse 
+import argparse
 import sys
 
 # Result file name for logging
@@ -141,9 +130,10 @@ def save_result(question, method, steps, time_complexity, space_complexity, foun
         print("Warning: Could not write to results.json")
 
 
-#----------------------------
-#   CLI COMMAND FUNCTION
-#----------------------------
+
+# ---------------------------
+#   CLI COMMAND FUNCTIONS
+# ---------------------------
 
 def show_history():
     """Display the history of all searches from results.json"""
@@ -214,6 +204,7 @@ def clear_last_result():
             
     except Exception as e:
         print(f"\n❌ Error clearing last result: {e}")
+
 
 # ---------------------------
 #   EXTRA FUNCTIONS
@@ -353,7 +344,7 @@ def show_algo_menu():
 # -------------------------
 # MAIN PROGRAM FLOW
 # -------------------------
-def main():
+def main_program():
     """Main menu loop for choosing question keys and algorithms."""
 
     questions = load_questions("questions.json")      # Load JSON
@@ -513,6 +504,55 @@ def main():
             else:
                 print("Invalid choice. Enter 1,2,3,b or exit.")
 
+
+def main():
+    """Entry point with argparse for CLI commands."""
+    
+    parser = argparse.ArgumentParser(
+        description="Search Algorithms Explainer - Interactive CLI Tool",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        
+    )
+    
+    parser.add_argument(
+        'command',
+        nargs='?',
+        default='/start',
+        help='Command to execute: /start, /end, /history, /clearresult'
+    )
+    
+    args = parser.parse_args()
+    command = args.command.lower()
+    
+    # Handle commands
+    if command == '/start':
+        print("\n" + "="*60)
+        print(" SEARCH ALGORITHMS EXPLAINER")
+        print(" Interactive Mode Started")
+        print("="*60)
+        main_program()
+        
+    elif command == '/end':
+        print("\n" + "="*60)
+        print(" Program terminated")
+        print("="*60)
+        sys.exit(0)
+        
+    elif command == '/history':
+        show_history()
+        
+    elif command == '/clearresult':
+        clear_last_result()
+        
+    else:
+        print(f"\n❌ Unknown command: {command}")
+        print("\nAvailable commands:")
+        print("  /start        - Start the interactive program")
+        print("  /end          - Exit the program")
+        print("  /history      - Show search history")
+        print("  /clearresult  - Clear the last search result")
+        print("\nUse -h or --help for more information")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
