@@ -16,6 +16,8 @@
 
 import json
 import os
+import argparse 
+import sys
 
 # Result file name for logging
 RESULTS_FILE = "results.json"
@@ -139,6 +141,79 @@ def save_result(question, method, steps, time_complexity, space_complexity, foun
         print("Warning: Could not write to results.json")
 
 
+#----------------------------
+#   CLI COMMAND FUNCTION
+#----------------------------
+
+def show_history():
+    """Display the history of all searches from results.json"""
+    
+    print("\n" + "="*60)
+    print(" SEARCH HISTORY")
+    print("="*60)
+    
+    if not os.path.exists(RESULTS_FILE):
+        print("No history found. The results file doesn't exist yet.")
+        print("="*60)
+        return
+    
+    try:
+        with open(RESULTS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            
+            if not isinstance(data, list) or len(data) == 0:
+                print("No search results found in history.")
+                print("="*60)
+                return
+            
+            for idx, entry in enumerate(data, 1):
+                print(f"\n[{idx}] Question: {entry.get('question', 'N/A')}")
+                print(f"    Method: {entry.get('method', 'N/A')}")
+                print(f"    Result: {entry.get('found', 'N/A')}")
+                print(f"    Steps: {entry.get('steps', 'N/A')}")
+                print(f"    Time Complexity: {entry.get('time_complexity', 'N/A')}")
+                print(f"    Space Complexity: {entry.get('space_complexity', 'N/A')}")
+            
+            print("\n" + "="*60)
+            print(f"Total entries: {len(data)}")
+            print("="*60)
+            
+    except Exception as e:
+        print(f"Error reading history: {e}")
+        print("="*60)
+
+
+def clear_last_result():
+    """Remove the last entry from results.json"""
+    
+    if not os.path.exists(RESULTS_FILE):
+        print("\n❌ No results file found. Nothing to clear.")
+        return
+    
+    try:
+        with open(RESULTS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            
+            if not isinstance(data, list) or len(data) == 0:
+                print("\n❌ No results found in history. Nothing to clear.")
+                return
+            
+            # Get the last entry before removing
+            last_entry = data[-1]
+            
+            # Remove the last entry
+            data = data[:-1]
+            
+            # Save back
+            with open(RESULTS_FILE, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4)
+            
+            print("\n✓ Last result cleared successfully!")
+            print(f"  Removed: Question '{last_entry.get('question', 'N/A')}' - Method '{last_entry.get('method', 'N/A')}'")
+            print(f"  Remaining entries: {len(data)}")
+            
+    except Exception as e:
+        print(f"\n❌ Error clearing last result: {e}")
 
 # ---------------------------
 #   EXTRA FUNCTIONS
