@@ -59,3 +59,51 @@ Examples:
         action='version',
         version=f'%(prog)s {__version__}'
     )
+    
+    args = parser.parse_args()
+    command = args.command.lower()
+    
+    # Handle commands
+    if command == '/start':
+        print("\n" + "="*60)
+        print(" SEARCH ALGORITHMS EXPLAINER")
+        print(f" Version {__version__}")
+        print(" Interactive Mode Started")
+        print("="*60)
+        
+        # Load questions from data directory
+        questions_file = Path(__file__).parent.parent / "data" / "questions.json"
+        questions = load_questions(str(questions_file))
+        
+        if not questions:
+            print("\n❌ Error: Could not load questions.json")
+            print(f"   Expected file at: {questions_file}")
+            sys.exit(1)
+        
+        process_main_menu(questions)
+        
+    elif command == '/end':
+        print("\n" + "="*60)
+        print(" Program terminated")
+        print("="*60)
+        sys.exit(0)
+        
+    elif command == '/history':
+        show_history()
+        
+    elif command == '/clearresult':
+        clear_last_result()
+        
+    else:
+        print(f"\n❌ Unknown command: {command}")
+        print("\nAvailable commands:")
+        print("  /start        - Start the interactive program")
+        print("  /end          - Exit the program")
+        print("  /history      - Show search history")
+        print("  /clearresult  - Clear the last search result")
+        print("\nUse -h or --help for more information")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
